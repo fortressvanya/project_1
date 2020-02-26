@@ -180,6 +180,15 @@ def lost():
     hero.die()
 
 
+class Arrow(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprites)
+        self.image = load_image('arrow.png', -1)
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+
+
 ball = Ball()
 ball.spawn()
 fps = 24
@@ -190,12 +199,16 @@ lose = False
 startsc = True
 start_screen()
 move_mouse = False
+
 pygame.mixer.music.load('data1\mk.mp3')
 pygame.mixer.music.set_volume(10)
 pygame.mixer.music.play()
 sound2 = pygame.mixer.Sound('data1\cock.wav')
 sound1 = pygame.mixer.Sound('data1\game_over.wav')
 U = 0
+
+arrow = Arrow()
+
 while startsc:
     start_screen()
     for event in pygame.event.get():
@@ -238,9 +251,16 @@ while running:
                     pygame.mixer.music.play()
             if event.key == pygame.K_ESCAPE:
                 running = False
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             X = event.pos[0]
             move_mouse = True
+
+        if event.type == pygame.MOUSEMOTION:
+            if pygame.mouse.get_focused():
+                pygame.mouse.set_visible(0)
+                arrow.rect.x = event.pos[0]
+                arrow.rect.y = event.pos[1]
     if lose:
         lost()
         pygame.mixer.music.stop()

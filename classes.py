@@ -91,8 +91,8 @@ class Ball(pygame.sprite.Sprite):
             else:
                 self.vx = abs(ball1 - hero1)
             v = h.rect.width
-            self.vy = -(abs(v**2 - self.vx**2))**0.5 // 5
-            self.vx = self.vx // 3
+            self.vy = -(abs(v**2 - self.vx**2))**0.5 // 3 + 10
+            self.vx = self.vx // 5
             self.score += 1
             sound2.play()
         if pygame.sprite.spritecollideany(self, vertical_borders):
@@ -130,7 +130,7 @@ class Hero(pygame.sprite.Sprite):
         super().__init__(player_group, all_sprites)
         self.image = load_image('box.png')
         self.rect = self.image.get_rect()
-        self.vx = 15
+        self.vx = 10
         self.start_position_x = (width - self.rect.x) // 2
         self.rect.x = self.start_position_x
         self.rect.y = height - 40

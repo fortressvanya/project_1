@@ -2,8 +2,6 @@ import pygame
 import os
 import random
 
-
-
 pygame.init()
 size = width, height = 720, 420
 screen = pygame.display.set_mode(size)
@@ -191,7 +189,7 @@ move_right = False
 lose = False
 startsc = True
 start_screen()
-
+move_mouse = False
 pygame.mixer.music.load('data1\mk.mp3')
 pygame.mixer.music.set_volume(10)
 pygame.mixer.music.play()
@@ -220,6 +218,7 @@ while running:
             running = False
 
         elif event.type == pygame.KEYDOWN:
+            move_mouse = False
             if event.key == pygame.K_a:
                 move_left = True
             if event.key == pygame.K_d:
@@ -239,13 +238,31 @@ while running:
                     pygame.mixer.music.play()
             if event.key == pygame.K_ESCAPE:
                 running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            X = event.pos[0]
+            move_mouse = True
     if lose:
         lost()
         pygame.mixer.music.stop()
         if U == 0:
             sound1.play()
             U += 1
+    if move_mouse:
+        if hero.rect.x + hero.rect.width // 2 != X:
 
+            if hero.rect.x + hero.rect.width // 2 < X:
+                if X - hero.rect.x + hero.rect.width // 2 < 10:
+                    hero.rect.x = X + hero.rect.width // 2
+                else:
+                    hero.rect.x += 10
+
+            else:
+                if X - hero.rect.x + hero.rect.width // 2 > 10:
+                    hero.rect.x = X - hero.rect.width // 2
+                else:
+                    hero.rect.x -= 10
+        else:
+            move_mouse = False
     if move_right:
         hero.move_right()
     if move_left:

@@ -445,6 +445,9 @@ if ball.score >= 20:
                     pygame.mouse.set_visible(0)
                     arrow.rect.x = event.pos[0]
                     arrow.rect.y = event.pos[1]
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    dude = False
         screen.fill((0, 0, 0))
         win()
         Arrow_group.draw(screen)

@@ -197,6 +197,31 @@ def lost():
     hero.die()
 
 
+def win():
+    screen.fill(BLACK)
+
+    font = pygame.font.Font(None, 50)
+    text2 = Font2.render("YOU WIN", True, WHITE, BLACK)
+    text3 = Font.render("Press 'esc' to exit", True, WHITE, BLACK)
+    text4 = Font.render(f"Score:{ball.score}", True, WHITE, BLACK)
+
+    textRect2 = text2.get_rect()
+    textRect3 = text3.get_rect()
+    textRect7 = text4.get_rect()
+
+    textrect1_x = 170
+    textrect1_y = 100
+
+    textRect2.center = screen.get_rect().center
+    textRect3.midbottom = screen.get_rect().midbottom
+    textRect7.midtop = screen.get_rect().midtop
+
+    screen.blit(text2, textRect2)
+    screen.blit(text3, textRect3)
+    screen.blit(text4, textRect7)
+    hero.die()
+
+
 class Arrow(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(Arrow_group, all_sprites)
@@ -261,7 +286,6 @@ def setBlockColor(block, row, column):
         return YELLOW
     else:
         return CYAN
-
 
 
 block = createBlocks()
@@ -370,6 +394,7 @@ while running:
                     lose = False
                     U = 0
                     ball.score = 0
+                    block = createBlocks()
                     pygame.mixer.music.play()
             if event.key == pygame.K_ESCAPE:
                 running = False
@@ -392,12 +417,36 @@ while running:
         hero.move_right()
     if move_left:
         hero.move_left()
+    if not lose:
+        blocks.update()
+        blocks.draw(screen)
+    if ball.score >= 20:
+        pygame.mixer.music.stop()
+        running = False
+
     font = pygame.font.Font(None, 50)
     text = font.render(f'Scores: {ball.score}', 1, (0, 0, 0))
     screen.blit(text, (0, 0))
-    blocks.update()
     ball.update()
     all_sprites.update()  # апдейт и фриз
     all_sprites.draw(screen)
     pygame.display.flip()
     clock.tick(fps)
+if ball.score >= 20:
+    dude = True
+    while dude:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                dude = False
+
+            if event.type == pygame.MOUSEMOTION:
+                if pygame.mouse.get_focused():
+                    pygame.mouse.set_visible(0)
+                    arrow.rect.x = event.pos[0]
+                    arrow.rect.y = event.pos[1]
+        screen.fill((0, 0, 0))
+        win()
+        Arrow_group.draw(screen)
+        Arrow_group.update()
+        pygame.display.flip()

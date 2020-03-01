@@ -13,6 +13,10 @@ running = True
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+YELLOW = (255, 255, 0)
+ORANGE = (255, 128, 0)
+PURPLE = (255, 0, 255)
+CYAN = (0, 255, 255)
 
 Font = pygame.font.SysFont(None, 30)
 Font2 = pygame.font.SysFont(None,72)
@@ -30,6 +34,7 @@ def load_image(name, colorkey=None):
     return image
 
 
+blocks = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 ball_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -82,6 +87,16 @@ class Ball(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             self.vy = -self.vy
             sound2.play()
+        hitGroup = pygame.sprite.Group(block)
+        spriteHitList = pygame.sprite.spritecollide(self, hitGroup, False)
+        if len(spriteHitList) > 0:
+            for sprite in spriteHitList:
+                if sprite.name == 'block':
+                    sprite.kill()
+                    sound2.play()
+                    self.score += 1
+            self.vy *= -1
+            self.rect.y += self.vy
         if pygame.sprite.spritecollideany(self, player_group):
             ball1 = ball.rect.x + ball.rect.width // 2
             h = pygame.sprite.spritecollideany(self, player_group)
@@ -94,7 +109,6 @@ class Ball(pygame.sprite.Sprite):
             v = h.rect.width
             self.vy = -(abs(v**2 - self.vx**2))**0.5 // 3 + 10
             self.vx = self.vx // 5
-            self.score += 1
             sound2.play()
         if pygame.sprite.spritecollideany(self, vertical_borders):
             self.vx = -self.vx
@@ -217,6 +231,41 @@ class Menu:
         punkt = 0
 
 
+class Block(pygame.sprite.Sprite):
+
+    def __init__(self):
+        self.blockWidth = 72
+        self.blockHeight = 20
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((self.blockWidth, self.blockHeight))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.name = 'block'
+
+
+def createBlocks():
+        for row in range(6):
+            for i in range(width):
+                block = Block()
+                block.rect.x = i * (block.blockWidth + 2)
+                block.rect.y = row * (block.blockHeight + 2)
+                block.color = setBlockColor(block, row, i)
+                block.image.fill(block.color)
+                blocks.add(block)
+
+        return blocks
+
+
+def setBlockColor(block, row, column):
+    if column == 0 or column % 2 == 0:
+        return YELLOW
+    else:
+        return CYAN
+
+
+
+block = createBlocks()
+allSprites = pygame.sprite.Group(block)
 ball = Ball()
 ball.spawn()
 fps = 24
@@ -346,6 +395,7 @@ while running:
     font = pygame.font.Font(None, 50)
     text = font.render(f'Scores: {ball.score}', 1, (0, 0, 0))
     screen.blit(text, (0, 0))
+    blocks.update()
     ball.update()
     all_sprites.update()  # апдейт и фриз
     all_sprites.draw(screen)

@@ -1,6 +1,8 @@
 import pygame
 import os
 import random
+import datetime
+import sys
 
 pygame.init()
 size = width, height = 720, 420
@@ -34,6 +36,7 @@ player_group = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 Brick_group = pygame.sprite.Group()
+Arrow_group = pygame.sprite.Group()
 
 fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
 screen.blit(fon, (0, 0))
@@ -124,14 +127,14 @@ class Border(pygame.sprite.Sprite):
 
 
 class Hero(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, y):
         super().__init__(player_group, all_sprites)
         self.image = load_image('box.png')
         self.rect = self.image.get_rect()
         self.vx = 10
         self.start_position_x = (width - self.rect.x) // 2
         self.rect.x = self.start_position_x
-        self.rect.y = height - 40
+        self.rect.y = y - 40
 
     def move_right(self):
         if self.rect.x + self.rect.width + self.vx > width:
@@ -182,23 +185,49 @@ def lost():
 
 class Arrow(pygame.sprite.Sprite):
     def __init__(self):
-        super().__init__(all_sprites)
+        super().__init__(Arrow_group, all_sprites)
         self.image = load_image('arrow.png', -1)
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
+        self.ou = 0
+
+
+info = pygame.Surface((800, 30))
+
+
+class Menu:
+    def __init__(self, punkts=[800, 700, u'Punkt', (250, 250, 250), (0, 0, 0)]):
+        self.punkts = punkts
+
+    def render(self, poverhnost, num_punkt):
+        font = pygame.font.Font(None, 50)
+        self.font_menu = pygame.font.Font(None, 50)
+        for i in self.punkts:
+            if num_punkt == i[5]:
+                poverhnost.blit(font.render(i[2], 1, i[4]), (i[0], i[1] - 30))
+            else:
+                poverhnost.blit(font.render(i[2], 1, i[3]), (i[0], i[1] - 30))
+
+    def menu(self):
+        done = True
+
+        pygame.key.set_repeat(0, 0)
+        pygame.mouse.set_visible(True)
+        punkt = 0
 
 
 ball = Ball()
 ball.spawn()
 fps = 24
-hero = Hero()
+hero = Hero(height)
 move_left = False
 move_right = False
 lose = False
 startsc = True
 start_screen()
 move_mouse = False
+Robo = False
 
 pygame.mixer.music.load('data1\mk.mp3')
 pygame.mixer.music.set_volume(10)
@@ -208,12 +237,57 @@ sound1 = pygame.mixer.Sound('data1\game_over.wav')
 U = 0
 
 arrow = Arrow()
-
 while startsc:
     start_screen()
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             startsc = False
+        if event.type == pygame.QUIT:
+            running = False
+            startsc = False
+    pygame.display.flip()
+
+
+punkts = [(350, 300, u'Play', (250, 250, 250), (250, 250, 250), 0),
+          (350, 340, u'Exit', (250, 250, 250), (250, 250, 250), 1)]
+game = Menu(punkts)
+game.menu()
+done = True
+while done:
+    info.fill((0, 0, 0))
+    screen.fill((0, 0, 0))
+    punkt = 0
+    mp = pygame.mouse.get_pos()
+    for i in game.punkts:
+        if mp[0] > i[0] and mp[0] < i[0] + 155 and mp[1] > i[1] and mp[1] < i[1] + 50:
+            punkt = i[5]
+    game.render(screen, punkts)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        if event.type == pygame.MOUSEMOTION:
+            if pygame.mouse.get_focused():
+                pygame.mouse.set_visible(0)
+                arrow.rect.x = event.pos[0]
+                arrow.rect.y = event.pos[1]
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                sys.exit()
+            if event.key == pygame.K_UP:
+                if punkt > 0:
+                    punkt -= 1
+            if event.key == pygame.K_DOWN:
+                if punkt < len(game.punkts) - 1:
+                    punkt += 1
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if punkt == 0:
+                done = False
+            elif punkt == 1:
+                exit()
+    Arrow_group.update()
+    Arrow_group.draw(screen)
+    screen.blit(info, (0, 0))
+    screen.blit(screen, (0, 30))
     pygame.display.flip()
 
 while running:
@@ -252,37 +326,20 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            X = event.pos[0]
-            move_mouse = True
-
         if event.type == pygame.MOUSEMOTION:
             if pygame.mouse.get_focused():
                 pygame.mouse.set_visible(0)
                 arrow.rect.x = event.pos[0]
                 arrow.rect.y = event.pos[1]
+                X = event.pos[0]
+                hero.rect.x = X
     if lose:
         lost()
         pygame.mixer.music.stop()
         if U == 0:
             sound1.play()
             U += 1
-    if move_mouse:
-        if hero.rect.x + hero.rect.width // 2 != X:
 
-            if hero.rect.x + hero.rect.width // 2 < X:
-                if X - hero.rect.x + hero.rect.width // 2 < 10:
-                    hero.rect.x = X + hero.rect.width // 2
-                else:
-                    hero.rect.x += 10
-
-            else:
-                if X - hero.rect.x + hero.rect.width // 2 > 10:
-                    hero.rect.x = X - hero.rect.width // 2
-                else:
-                    hero.rect.x -= 10
-        else:
-            move_mouse = False
     if move_right:
         hero.move_right()
     if move_left:

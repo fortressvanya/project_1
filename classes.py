@@ -64,7 +64,7 @@ def start_screen():
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(ball_group, all_sprites)
-        im = load_image('red_ball.png')
+        im = load_image('red_ball.png', -1)
         self.image = pygame.transform.scale(im, (20, 20))
         self.rect = self.image.get_rect()
         self.v = 6
@@ -236,6 +236,8 @@ sound2 = pygame.mixer.Sound('data1\cock.wav')
 sound1 = pygame.mixer.Sound('data1\game_over.wav')
 U = 0
 
+back = load_image('back.jpg')
+pygame.transform.scale(back, (width, height))
 arrow = Arrow()
 while startsc:
     start_screen()
@@ -291,13 +293,10 @@ while done:
     pygame.display.flip()
 
 while running:
-    screen.blit(fon, (0, 0))
-    screen.fill((255, 255, 255))
-
+    screen.blit(back, (0, 0))
     Border(0, 0, 0, height)  # чтоб не улетал
     Border(width, 0, width, height)
     Border(0, 0, width, 0)
-
     if ball.game_over():  # проверка на проигрыш
         lose = True
     for event in pygame.event.get():

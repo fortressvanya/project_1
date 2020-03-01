@@ -420,7 +420,7 @@ while running:
     if not lose:
         blocks.update()
         blocks.draw(screen)
-    if ball.score >= 20:
+    if ball.score >= 60:
         pygame.mixer.music.stop()
         running = False
 
@@ -432,7 +432,7 @@ while running:
     all_sprites.draw(screen)
     pygame.display.flip()
     clock.tick(fps)
-if ball.score >= 20:
+if ball.score >= 60:
     dude = True
     while dude:
 
